@@ -7,11 +7,15 @@ class UserController {
   async store(req: Request, res: Response) {
     const user = prisma.user;
     const { email, password, name, age, gender, apiKey } = req.body;
+    console.log(req.body);
 
     const userExists = await user.findFirst({ where: { email } });
 
     if (userExists) {
-      return res.sendStatus(409);
+      return res.status(409).json({
+        status: "error",
+        message: "User already exists",
+      });
     }
 
     const createdUser = await user.create({
