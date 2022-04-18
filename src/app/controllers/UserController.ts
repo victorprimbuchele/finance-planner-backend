@@ -7,7 +7,6 @@ class UserController {
   async store(req: Request, res: Response) {
     const user = prisma.user;
     const { email, password, name, age, gender, apiKey } = req.body;
-    console.log(req.body);
 
     const userExists = await user.findFirst({ where: { email } });
 
@@ -15,6 +14,13 @@ class UserController {
       return res.status(409).json({
         status: "error",
         message: "User already exists",
+      });
+    }
+
+    if (apiKey !== process.env.API_KEY) {
+      return res.status(401).json({
+        status: "error",
+        message: "Invalid API key",
       });
     }
 
