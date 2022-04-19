@@ -11,7 +11,17 @@ class UserController {
     const userExists = await user.findFirst({ where: { email } });
 
     if (userExists) {
-      return res.sendStatus(409);
+      return res.status(409).json({
+        status: "error",
+        message: "User already exists",
+      });
+    }
+
+    if (apiKey !== process.env.API_KEY) {
+      return res.status(401).json({
+        status: "error",
+        message: "Invalid API key",
+      });
     }
 
     const createdUser = await user.create({
