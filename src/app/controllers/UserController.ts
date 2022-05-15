@@ -127,21 +127,21 @@ class UserController {
   async logout(req: Request, res: Response) {
     try {
       // capturar token do usuário
-      const { id, token } = req.body;
+      const { email, token } = req.body;
 
-      // verificar se existe token e id no corpo da requisição
-      if (token == null || id == null) {
+      // verificar se existe token e email no corpo da requisição
+      if (token == null || email == null) {
         return res.status(401).json({
           status: "error",
-          message: "Token or id cannot be null",
+          message: "Token or email cannot be null",
         });
       }
 
       // instanciar tabela do usuário
       const user = prisma.user;
 
-      // buscar usuário pelo id
-      const userExists = await user.findUnique({ where: { id } });
+      // buscar usuário pelo email
+      const userExists = await user.findUnique({ where: { email } });
 
       // verificar se usuário existe
       if (!userExists) {
@@ -156,7 +156,7 @@ class UserController {
 
       // atualizar stauts do usuário como desautenticado
       const updatedUser = await user.update({
-        where: { id },
+        where: { email },
         data: {
           isAuth: false,
         },
