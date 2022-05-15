@@ -8,11 +8,17 @@ datasource db {
 }
 
 model User {
-  id       Int    @id @default(autoincrement())
+  id       Int     @id @default(autoincrement())
   password String
-  email    String @unique
+  email    String  @unique
   age      String
   apiKey   String
   gender   String
   name     String
+  isAuth   Boolean
+}
+
+model BlackList {
+  id    Int    @id @default(autoincrement())
+  token String
 }

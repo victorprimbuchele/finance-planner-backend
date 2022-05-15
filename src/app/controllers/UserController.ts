@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import * as bcrypt from "bcrypt";
 import * as jwt from "jsonwebtoken";
+import blackListController from "../controllers/BlackList";
 
 const prisma = new PrismaClient();
 
@@ -60,14 +61,15 @@ class UserController {
         expiresIn: "1d",
       });
 
-      const loggedUser = {
-        id: isUser.id,
-        name: isUser.name,
-        email: isUser.email,
-        token,
-      };
+      // Atualizar status do usuário como autenticado
+      const loggedUser = await user.update({
+        where: { id: isUser.id },
+        data: {
+          isAuth: true,
+        },
+      });
 
-      return res.json(loggedUser);
+      return res.json({ loggedUser, token });
     } catch (error) {
       console.log(error);
       return res.json({
@@ -108,10 +110,59 @@ class UserController {
           apiKey,
           gender,
           name,
+          isAuth: false,
         },
       });
 
       return res.json(createdUser);
+    } catch (error) {
+      console.log(error);
+      return res.json({
+        status: "error",
+        message: "Internal server error. " + error,
+      });
+    }
+  }
+
+  async logout(req: Request, res: Response) {
+    try {
+      // capturar token do usuário
+      const { id, token } = req.body;
+
+      // verificar se existe token e id no corpo da requisição
+      if (token == null || id == null) {
+        return res.status(401).json({
+          status: "error",
+          message: "Token or id cannot be null",
+        });
+      }
+
+      // instanciar tabela do usuário
+      const user = prisma.user;
+
+      // buscar usuário pelo id
+      const userExists = await user.findUnique({ where: { id } });
+
+      // verificar se usuário existe
+      if (!userExists) {
+        return res.status(401).json({
+          status: "error",
+          message: "User not found",
+        });
+      }
+
+      // instanciar controlador da tabela blacklist
+      blackListController.stopThisToken(token);
+
+      // atualizar stauts do usuário como desautenticado
+      const updatedUser = await user.update({
+        where: { id },
+        data: {
+          isAuth: false,
+        },
+      });
+
+      return res.json(updatedUser);
     } catch (error) {
       console.log(error);
       return res.json({
