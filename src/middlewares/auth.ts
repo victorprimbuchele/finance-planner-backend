@@ -43,6 +43,7 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
     return res.status(401).json({
       status: "error",
       message: "Token invalid",
+      error: err,
     });
   }
 };

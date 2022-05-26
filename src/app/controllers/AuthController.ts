@@ -4,6 +4,8 @@ import blackListController from "../controllers/BlackList";
 import * as bcrypt from "bcrypt";
 import * as jwt from "jsonwebtoken";
 
+import { decoder } from "../../utils/decoder";
+
 const prisma = new PrismaClient();
 
 class AuthController {
@@ -92,13 +94,22 @@ class AuthController {
   async logout(req: Request, res: Response) {
     try {
       // capturar token do usuário
-      const { id, token } = req.body;
+      const { token } = req.body;
 
-      // verificar se existe token e id no corpo da requisição
-      if (token == null || id == null) {
+      // verificar se existe token no corpo da requisição
+      if (token == null) {
         return res.status(401).json({
           status: "error",
-          message: "Token or id cannot be null",
+          message: "Token cannot be null",
+        });
+      }
+
+      const decodedToken = decoder(token);
+
+      if (!decodedToken.id) {
+        return res.status(401).json({
+          status: "error",
+          message: "Invalid token",
         });
       }
 
@@ -106,7 +117,9 @@ class AuthController {
       const user = prisma.user;
 
       // buscar usuário pelo id
-      const userExists = await user.findUnique({ where: { id } });
+      const userExists = await user.findUnique({
+        where: { id: decodedToken.id },
+      });
 
       // verificar se usuário existe
       if (!userExists) {
@@ -121,13 +134,13 @@ class AuthController {
 
       // atualizar stauts do usuário como desautenticado
       const updatedUser = await user.update({
-        where: { id },
+        where: { id: decodedToken.id },
         data: {
           isAuth: false,
         },
       });
 
-      return res.json(updatedUser);
+      return res.status(200).json(updatedUser);
     } catch (error) {
       console.log(error);
       return res.status(500).json({
