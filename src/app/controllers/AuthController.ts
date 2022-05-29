@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { PrismaClient } from "@prisma/client";
 import blackListController from "../controllers/BlackList";
 import * as bcrypt from "bcrypt";
 import * as jwt from "jsonwebtoken";

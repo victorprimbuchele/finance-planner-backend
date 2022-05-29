@@ -1,8 +1,6 @@
 import { Request, Response } from "express";
-import { PrismaClient } from "@prisma/client";
 import * as bcrypt from "bcrypt";
-
-const prisma = new PrismaClient();
+import { prisma } from "../../database/migrations/connect";
 
 class UserController {
   async create(req: Request, res: Response) {
