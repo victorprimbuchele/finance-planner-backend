@@ -1,10 +1,8 @@
 import { Request, Response } from "express";
-import { PrismaClient } from "@prisma/client";
 import blackListController from "../controllers/BlackList";
 import * as bcrypt from "bcrypt";
 import * as jwt from "jsonwebtoken";
-
-const prisma = new PrismaClient();
+import { prisma } from "../../database/migrations/connect";
 
 class AuthController {
   async login(req: Request, res: Response) {
