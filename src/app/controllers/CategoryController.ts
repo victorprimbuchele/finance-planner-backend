@@ -4,7 +4,7 @@ import { prisma } from "../../database/migrations/connect";
 class CategoryController {
   // criar nova categoria
   async create(req: Request, res: Response) {
-    const { name } = req.body;
+    const { name, id } = req.body;
     const category = prisma.category;
     try {
       if (name == null) {
@@ -37,6 +37,7 @@ class CategoryController {
       const newCategory = await category.create({
         data: {
           name,
+          userId: id,
         },
       });
 
@@ -53,9 +54,23 @@ class CategoryController {
   }
   // listar todas as categorias
   async list(req: Request, res: Response) {
+    const { id } = req.query;
     const category = prisma.category;
+    const userId = Number(id);
+
+    if (userId == null) {
+      return res.status(400).json({
+        status: "error",
+        message: "User ID cannot be null",
+      });
+    }
+
     try {
-      const categories = await category.findMany();
+      const categories = await category.findMany({
+        where: {
+          userId,
+        },
+      });
 
       return res.status(200).json({
         status: "success",

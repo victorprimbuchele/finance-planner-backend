@@ -9,14 +9,15 @@ datasource db {
 }
 
 model User {
-  id       Int     @id @default(autoincrement())
+  id       Int        @id @default(autoincrement())
   password String
-  email    String  @unique
+  email    String     @unique
   age      String
   apiKey   String
   gender   String
   name     String
   isAuth   Boolean
+  Category Category[]
 }
 
 model BlackList {
@@ -25,6 +26,8 @@ model BlackList {
 }
 
 model Category {
-  id   Int    @id @default(autoincrement())
-  name String @unique
+  id     Int    @id @default(autoincrement())
+  name   String @unique
+  user   User   @relation(fields: [userId], references: [id])
+  userId Int
 }
