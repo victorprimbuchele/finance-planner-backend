@@ -143,8 +143,6 @@ class AuthController {
 
       const [_, token] = parts;
 
-      console.log({ authHeader, token });
-
       //   verificar se token existe na blacklist
       const blacklist = prisma.blackList;
 
@@ -155,8 +153,6 @@ class AuthController {
           },
         },
       });
-
-      console.log(tokenExists);
 
       //   se token existir, proibir usuário de acessar a API
       if (tokenExists) {

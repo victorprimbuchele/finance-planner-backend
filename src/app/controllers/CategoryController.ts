@@ -1,11 +1,18 @@
 import { Request, Response } from "express";
 import { prisma } from "../../database/migrations/connect";
+import { getToken } from "../../utils/bearerDecrypt";
 
 class CategoryController {
   // criar nova categoria
   async create(req: Request, res: Response) {
-    const { name, id } = req.body;
-    const category = prisma.category;
+    const { name } = req.body;
+
+    const decryptToken = getToken(req, res);
+
+    if (!decryptToken) {
+      return null;
+    }
+
     try {
       if (name == null) {
         return res.status(400).json({
@@ -21,23 +28,12 @@ class CategoryController {
         });
       }
 
-      const isCategory = await category.findFirst({
-        where: {
-          name,
-        },
-      });
-
-      if (isCategory) {
-        return res.status(400).json({
-          status: "error",
-          message: "Category already exists",
-        });
-      }
+      const category = prisma.category;
 
       const newCategory = await category.create({
         data: {
           name,
-          userId: id,
+          userId: decryptToken.id,
         },
       });
 
@@ -54,11 +50,15 @@ class CategoryController {
   }
   // listar todas as categorias
   async list(req: Request, res: Response) {
-    const { id } = req.query;
-    const category = prisma.category;
-    const userId = Number(id);
+    const decryptToken = getToken(req, res);
 
-    if (userId == null) {
+    if (!decryptToken) {
+      return null;
+    }
+
+    const category = prisma.category;
+
+    if (decryptToken.id == null) {
       return res.status(400).json({
         status: "error",
         message: "User ID cannot be null",
@@ -68,7 +68,7 @@ class CategoryController {
     try {
       const categories = await category.findMany({
         where: {
-          userId,
+          userId: decryptToken.id,
         },
       });
 
