@@ -1,6 +1,7 @@
 import { Router } from "express";
 import AuthController from "./app/controllers/AuthController";
 import CategoryController from "./app/controllers/CategoryController";
+import PaymentMethodController from "./app/controllers/PaymentMethodController";
 
 import UserController from "./app/controllers/UserController";
 import { auth } from "./middlewares/auth";
@@ -19,5 +20,11 @@ router.post("/categories", auth, CategoryController.create);
 router.get("/categories", auth, CategoryController.list);
 router.put("/categories/:id", auth, CategoryController.update);
 router.delete("/categories/:id", auth, CategoryController.delete);
+
+// CRUD de métodos de pagamento
+router.post("/payment-methods", auth, PaymentMethodController.create);
+router.get("/payment-methods", auth, PaymentMethodController.list);
+router.put("/payment-methods/:id", auth, PaymentMethodController.update);
+router.delete("/payment-methods/:id", auth, PaymentMethodController.delete);
 
 export default router;

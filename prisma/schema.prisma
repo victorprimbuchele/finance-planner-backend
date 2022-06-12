@@ -9,15 +9,16 @@ datasource db {
 }
 
 model User {
-  id       Int        @id @default(autoincrement())
-  password String
-  email    String     @unique
-  age      String
-  apiKey   String
-  gender   String
-  name     String
-  isAuth   Boolean
-  Category Category[]
+  id            Int             @id @default(autoincrement())
+  password      String
+  email         String          @unique
+  age           String
+  apiKey        String
+  gender        String
+  name          String
+  isAuth        Boolean
+  Category      Category[]
+  PaymentMethod PaymentMethod[]
 }
 
 model BlackList {
@@ -26,8 +27,31 @@ model BlackList {
 }
 
 model Category {
+  id          Int           @id @default(autoincrement())
+  name        String        @unique
+  userId      Int
+  user        User          @relation(fields: [userId], references: [id])
+  SubCategory SubCategory[]
+}
+
+model PaymentMethod {
   id     Int    @id @default(autoincrement())
   name   String @unique
   userId Int
   user   User   @relation(fields: [userId], references: [id])
+}
+
+model SubCategory {
+  id         Int         @id @default(autoincrement())
+  name       String      @unique
+  categoryId Int
+  category   Category    @relation(fields: [categoryId], references: [id])
+  Transfers  Transfers[]
+}
+
+model Transfers {
+  id            Int         @id @default(autoincrement())
+  amount        Int
+  subCategoryId Int
+  subCategory   SubCategory @relation(fields: [subCategoryId], references: [id])
 }
