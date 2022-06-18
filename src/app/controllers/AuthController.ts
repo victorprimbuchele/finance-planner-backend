@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import blackListController from "../controllers/BlackList";
+import blackListController from "./BlackListController";
 import * as bcrypt from "bcrypt";
 import * as jwt from "jsonwebtoken";
 import { prisma } from "../../database/migrations/connect";
