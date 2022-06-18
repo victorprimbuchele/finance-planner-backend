@@ -42,16 +42,23 @@ model PaymentMethod {
 }
 
 model SubCategory {
-  id         Int         @id @default(autoincrement())
-  name       String      @unique
-  categoryId Int
-  category   Category    @relation(fields: [categoryId], references: [id])
-  Transfers  Transfers[]
+  id                   Int                    @id @default(autoincrement())
+  name                 String                 @unique
+  categoryId           Int
+  category             Category               @relation(fields: [categoryId], references: [id])
+  TransfersSubCategory TransfersSubCategory[]
 }
 
 model Transfers {
+  id                   Int                    @id @default(autoincrement())
+  amount               Int
+  TransfersSubCategory TransfersSubCategory[]
+}
+
+model TransfersSubCategory {
   id            Int         @id @default(autoincrement())
-  amount        Int
+  transfersId   Int
+  transfers     Transfers   @relation(fields: [transfersId], references: [id])
   subCategoryId Int
   subCategory   SubCategory @relation(fields: [subCategoryId], references: [id])
 }
