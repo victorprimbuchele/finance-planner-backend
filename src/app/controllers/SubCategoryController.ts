@@ -4,8 +4,11 @@ import { prisma } from "../../database/migrations/connect";
 class SubCategoryController {
   // criar nova subcategoria
   async create(req: Request, res: Response) {
-    // capturar o nome da subcategoria e o id da categoria do corpo da requisição
-    const { name, categoryId } = req.body;
+    // capturar o nome da subcategoria
+    const { name } = req.body;
+
+    // capturar o id da categoria nos parametros da requisição
+    const { categoryId } = req.params;
 
     // verificar possível nulidade do name ou do id da categoria
     if (name == null || categoryId == null) {
@@ -14,6 +17,9 @@ class SubCategoryController {
         message: "Name or categoryId cannot be null",
       });
     }
+
+    // parsear o id para número
+    const parsedCategoryId = Number(categoryId);
 
     try {
       // verificar se o nome da subcategoria é menor que 3 caracteres
@@ -28,7 +34,7 @@ class SubCategoryController {
       const newSubCategory = await prisma.subCategory.create({
         data: {
           name,
-          categoryId,
+          categoryId: parsedCategoryId,
         },
       });
 
@@ -47,8 +53,8 @@ class SubCategoryController {
 
   // listar todas as subcategorias
   async list(req: Request, res: Response) {
-    // capturar o id da categoria do corpo da requisição
-    const { categoryId } = req.body;
+    // capturar o id da categoria nos parametros da requisição
+    const { categoryId } = req.params;
 
     // verificar possível nulidade do id da categoria
     if (categoryId == null) {
@@ -58,11 +64,14 @@ class SubCategoryController {
       });
     }
 
+    // parsear o id para número
+    const parsedCategoryId = Number(categoryId);
+
     try {
       // listar todas as subcategorias de uma categoria
       const subCategories = await prisma.subCategory.findMany({
         where: {
-          categoryId,
+          categoryId: parsedCategoryId,
         },
       });
 
