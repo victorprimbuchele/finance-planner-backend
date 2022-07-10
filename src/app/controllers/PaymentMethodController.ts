@@ -47,6 +47,7 @@ class PaymentMethodController {
       });
     }
   }
+
   // listar todos os métodos de pagamento
   async list(req: Request, res: Response) {
     try {
@@ -75,11 +76,11 @@ class PaymentMethodController {
       });
     }
   }
+
   // atualizar método de pagamento
   async update(req: Request, res: Response) {
     const { name } = req.body;
     const { id } = req.params;
-    const numberId = Number(id);
 
     try {
       if (name == null) {
@@ -103,9 +104,34 @@ class PaymentMethodController {
         });
       }
 
+      // capturar informações do token do usuário logado
+      const decryptToken = getToken(req, res);
+
+      if (!decryptToken) {
+        return res.status(403).json({
+          status: "error",
+          message: "You must be logged in to perform this action",
+        });
+      }
+
+      // verificar se o método de pagamento pertencer ao usuário logado
+      const paymentMethodUser = await prisma.paymentMethod.findFirst({
+        where: {
+          id: Number(id),
+          userId: decryptToken.id,
+        },
+      });
+
+      if (!paymentMethodUser) {
+        return res.status(403).json({
+          status: "error",
+          message: "You must be logged in to perform this action",
+        });
+      }
+
       const newPaymentMethod = await prisma.paymentMethod.update({
         where: {
-          id: numberId,
+          id: Number(id),
         },
         data: {
           name,
@@ -123,11 +149,10 @@ class PaymentMethodController {
       });
     }
   }
+
   // deletar método de pagamento
   async delete(req: Request, res: Response) {
     const { id } = req.params;
-    const numberId = Number(id);
-    const paymentMethod = prisma.paymentMethod;
 
     try {
       if (!id) {
@@ -136,6 +161,10 @@ class PaymentMethodController {
           message: "Id cannot be null",
         });
       }
+
+      const numberId = Number(id);
+
+      const paymentMethod = prisma.paymentMethod;
 
       const isPaymentMethod = await paymentMethod.findUnique({
         where: {

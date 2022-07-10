@@ -1,11 +1,14 @@
 import { Request, Response } from "express";
 import { prisma } from "../../database/migrations/connect";
+import { getToken } from "../../utils/bearerDecrypt";
 
 class SubCategoryController {
   // criar nova subcategoria
   async create(req: Request, res: Response) {
     // capturar o nome da subcategoria e o id da categoria do corpo da requisição
-    const { name, categoryId } = req.body;
+    const { name } = req.body;
+
+    const { categoryId } = req.params;
 
     // verificar possível nulidade do name ou do id da categoria
     if (name == null || categoryId == null) {
@@ -28,7 +31,7 @@ class SubCategoryController {
       const newSubCategory = await prisma.subCategory.create({
         data: {
           name,
-          categoryId,
+          categoryId: Number(categoryId),
         },
       });
 
@@ -48,7 +51,7 @@ class SubCategoryController {
   // listar todas as subcategorias
   async list(req: Request, res: Response) {
     // capturar o id da categoria do corpo da requisição
-    const { categoryId } = req.body;
+    const { categoryId } = req.params;
 
     // verificar possível nulidade do id da categoria
     if (categoryId == null) {
@@ -58,11 +61,35 @@ class SubCategoryController {
       });
     }
 
+    // capturar id do usuário do token
+    const decryptToken = getToken(req, res);
+
+    if (!decryptToken) {
+      return res.status(403).json({
+        status: "error",
+        message: "You must be logged in to perform this action",
+      });
+    }
+
+    const categoryUser = await prisma.category.findFirst({
+      where: {
+        id: Number(categoryId),
+        userId: decryptToken.id,
+      },
+    });
+
+    if (!categoryUser) {
+      return res.status(403).json({
+        status: "error",
+        message: "You must be logged in to perform this action",
+      });
+    }
+
     try {
       // listar todas as subcategorias de uma categoria
       const subCategories = await prisma.subCategory.findMany({
         where: {
-          categoryId,
+          categoryId: Number(categoryId),
         },
       });
 
@@ -142,14 +169,11 @@ class SubCategoryController {
       });
     }
 
-    // parsear o id para número
-    const numberId = Number(id);
-
     try {
       // deletar uma subcategoria
       const deletedSubCategory = await prisma.subCategory.delete({
         where: {
-          id: numberId,
+          id: Number(id),
         },
       });
 

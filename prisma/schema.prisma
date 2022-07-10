@@ -19,6 +19,7 @@ model User {
   isAuth        Boolean
   Category      Category[]
   PaymentMethod PaymentMethod[]
+  Transfers     Transfers[]
 }
 
 model BlackList {
@@ -28,37 +29,51 @@ model BlackList {
 
 model Category {
   id          Int           @id @default(autoincrement())
-  name        String        @unique
+  name        String
   userId      Int
-  user        User          @relation(fields: [userId], references: [id])
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   SubCategory SubCategory[]
 }
 
 model PaymentMethod {
-  id     Int    @id @default(autoincrement())
-  name   String @unique
-  userId Int
-  user   User   @relation(fields: [userId], references: [id])
+  id                                Int                                 @id @default(autoincrement())
+  name                              String
+  userId                            Int
+  user                              User                                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  TransfersSubCategoryPaymentMethod TransfersSubCategoryPaymentMethod[]
 }
 
 model SubCategory {
   id                   Int                    @id @default(autoincrement())
   name                 String                 @unique
   categoryId           Int
-  category             Category               @relation(fields: [categoryId], references: [id])
+  category             Category               @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   TransfersSubCategory TransfersSubCategory[]
 }
 
 model Transfers {
   id                   Int                    @id @default(autoincrement())
   amount               Int
+  date                 DateTime
+  description          String?
+  userId               Int
+  user                 User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
   TransfersSubCategory TransfersSubCategory[]
 }
 
 model TransfersSubCategory {
-  id            Int         @id @default(autoincrement())
-  transfersId   Int
-  transfers     Transfers   @relation(fields: [transfersId], references: [id])
-  subCategoryId Int
-  subCategory   SubCategory @relation(fields: [subCategoryId], references: [id])
+  id                                Int                                 @id @default(autoincrement())
+  transfersId                       Int
+  subCategoryId                     Int
+  subCategory                       SubCategory                         @relation(fields: [subCategoryId], references: [id])
+  transfers                         Transfers                           @relation(fields: [transfersId], references: [id], onDelete: Cascade)
+  TransfersSubCategoryPaymentMethod TransfersSubCategoryPaymentMethod[]
+}
+
+model TransfersSubCategoryPaymentMethod {
+  id                     Int                  @id @default(autoincrement())
+  transfersSubCategoryId Int
+  paymentMethodId        Int
+  paymentMethod          PaymentMethod        @relation(fields: [paymentMethodId], references: [id])
+  transfersSubCategory   TransfersSubCategory @relation(fields: [transfersSubCategoryId], references: [id], onDelete: Cascade)
 }

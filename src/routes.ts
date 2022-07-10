@@ -3,6 +3,7 @@ import AuthController from "./app/controllers/AuthController";
 import CategoryController from "./app/controllers/CategoryController";
 import PaymentMethodController from "./app/controllers/PaymentMethodController";
 import SubCategoryController from "./app/controllers/SubCategoryController";
+import TransfersController from "./app/controllers/TransfersController";
 
 import UserController from "./app/controllers/UserController";
 import { auth } from "./middlewares/auth";
@@ -31,15 +32,13 @@ router.delete("/payment-methods/:id", auth, PaymentMethodController.delete);
 // CRUD de subcategorias
 router.post("/sub-categories/:categoryId", auth, SubCategoryController.create);
 router.get("/sub-categories/:categoryId", auth, SubCategoryController.list);
-router.put(
-  "/sub-categories/:categoryId/:id",
-  auth,
-  SubCategoryController.update
-);
-router.delete(
-  "/sub-categories/:categoryId/:id",
-  auth,
-  SubCategoryController.delete
-);
+router.put("/sub-categories/:id", auth, SubCategoryController.update);
+router.delete("/sub-categories/:id", auth, SubCategoryController.delete);
+
+// CRUD de transferências
+router.post("/transfers/:categoryId/:id", auth, TransfersController.create);
+router.get("/transfers", auth, TransfersController.list);
+router.put("/transfers/:id", auth, TransfersController.update);
+router.delete("/transfers/:id", auth, TransfersController.delete);
 
 export default router;
