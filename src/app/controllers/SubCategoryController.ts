@@ -27,6 +27,30 @@ class SubCategoryController {
         });
       }
 
+      // verificar se categoria informada pertence ao usuário logado
+      const decryptToken = getToken(req, res);
+
+      if (!decryptToken) {
+        return res.status(403).json({
+          status: "error",
+          message: "You must be logged in to perform this action",
+        });
+      }
+
+      const categoryUser = await prisma.category.findFirst({
+        where: {
+          id: parseInt(categoryId),
+          userId: decryptToken.id,
+        },
+      });
+
+      if (!categoryUser) {
+        return res.status(403).json({
+          status: "error",
+          message: "You must be logged in to perform this action",
+        });
+      }
+
       // criar uma subcategoria
       const newSubCategory = await prisma.subCategory.create({
         data: {
@@ -111,7 +135,7 @@ class SubCategoryController {
     // capturar o id da subcategoria e o nome da subcategoria do corpo da requisição
     const { name } = req.body;
 
-    const { id } = req.params;
+    const { id, categoryId } = req.params;
 
     // verificar possível nulidade do id da subcategoria ou do nome da subcategoria
     if (id == null || name == null) {
@@ -121,8 +145,29 @@ class SubCategoryController {
       });
     }
 
-    // parsear o id para número
-    const numberId = Number(id);
+    // verificar se categoria informada pertence ao usuário logado
+    const decryptToken = getToken(req, res);
+
+    if (!decryptToken) {
+      return res.status(403).json({
+        status: "error",
+        message: "You must be logged in to perform this action",
+      });
+    }
+
+    const categoryUser = await prisma.category.findFirst({
+      where: {
+        id: parseInt(categoryId),
+        userId: decryptToken.id,
+      },
+    });
+
+    if (!categoryUser) {
+      return res.status(403).json({
+        status: "error",
+        message: "You must be logged in to perform this action",
+      });
+    }
 
     try {
       // verificar se o nome da subcategoria é menor que 3 caracteres
@@ -133,10 +178,12 @@ class SubCategoryController {
         });
       }
 
+      console.log("cheguei até aqui");
+
       // atualizar uma subcategoria
       const updatedSubCategory = await prisma.subCategory.update({
         where: {
-          id: numberId,
+          id: parseInt(id),
         },
         data: {
           name,
@@ -169,11 +216,13 @@ class SubCategoryController {
       });
     }
 
+    console.log({ id });
+
     try {
       // deletar uma subcategoria
       const deletedSubCategory = await prisma.subCategory.delete({
         where: {
-          id: Number(id),
+          id: parseInt(id),
         },
       });
 

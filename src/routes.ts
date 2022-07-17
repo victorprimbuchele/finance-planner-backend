@@ -32,8 +32,16 @@ router.delete("/payment-methods/:id", auth, PaymentMethodController.delete);
 // CRUD de subcategorias
 router.post("/sub-categories/:categoryId", auth, SubCategoryController.create);
 router.get("/sub-categories/:categoryId", auth, SubCategoryController.list);
-router.put("/sub-categories/:id", auth, SubCategoryController.update);
-router.delete("/sub-categories/:id", auth, SubCategoryController.delete);
+router.put(
+  "/sub-categories/:categoryId/:id",
+  auth,
+  SubCategoryController.update
+);
+router.delete(
+  "/sub-categories/:categoryId/:id",
+  auth,
+  SubCategoryController.delete
+);
 
 // CRUD de transferências
 router.post("/transfers/:categoryId/:id", auth, TransfersController.create);
